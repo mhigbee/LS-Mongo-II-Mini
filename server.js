@@ -15,6 +15,47 @@ app.use(bodyParser.json());
 
 // Your API will be built out here.
 
+app.get('/users', (req, res) => {
+  Person.find({}, (err, people) => {
+    if (err) {
+      res.status(STATUS_SERVER_ERROR);
+      res.json( { 'Error fetching users:': err })
+    } else {
+      res.json(people);
+    }
+  });
+});
+
+app.get('/users/:direction', (req, res) => {
+  const { direction } = req.params;
+  Person.find({})
+    .sort( { firstName: direction } )
+    .exec((err, people) => {
+    if (err) {
+      res.status(STATUS_SERVER_ERROR);
+      res.json( { 'Error fetching users:': err })
+    } else {
+      res.json(people);
+    }
+  });
+});
+
+app.put('/update-user/:id', (req, res) => {
+  const { id } = req.params;
+  const { firstName, lastName } = req.body;
+  Person.findByIdAndUpdate(
+    id, { firstName, lastName }, { new: true }
+  )
+  .exec((err, updatedUser) => {
+    if (err) {
+      res.status(STATUS_SERVER_ERROR);
+      res.json({ 'Error fetching users:': err })
+    } else {
+      res.json(updatedUser);
+    }
+  });
+});
+
 
 mongoose.Promise = global.Promise;
 const connect = mongoose.connect(
